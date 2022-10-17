@@ -4,7 +4,7 @@ Sometimes I lose internet connection on my phone, however calls still work. This
 
 ## How?
 I'll be using a prepaid SIM card, which will be used by the [AliExpress SIM900 Module](https://aliexpress.com/item/32308127622.html) / [Wayback Machine URL](https://web.archive.org/web/20221012180515/https://www.aliexpress.us/item/2251832121812870.html?gatewayAdapt=esp2usa4itemAdapt&_randl_shipto=US).
-A Raspberry Pi will be used to run Discord. Unfortunately, a Linux image with **desktop** (Ubuntu) will be used, as currently Discord's API doesn't allow receiving all user's audio in a single stream, and trying to merge them is a bit too complicated.
+A Raspberry Pi will be used to run Discord. Unfortunately, a Linux image with **desktop** (Raspberry Pi OS) will be used, as currently Discord's API doesn't allow receiving all user's audio in a single stream, and trying to merge them is a bit too complicated.
 
 - A separate Discord account will be used on the Raspberry Pi. This account will be in a voicecall 24/7, and in order to not get into the AFK channel, it will get assigned a Discord Role which forbids it from connecting/seeing the AFK channel.
 - The user will have to call the phone number that the SIM900 module is using.
@@ -53,11 +53,35 @@ flowchart TB
         DC[5V Power Supply];
     end
 
-    ID08-->IDRX;
-    ID10-->IDTX;
-    IDGNDR-->IDGNDS;
-    DC--Maybe from RPi?-->ID5V;
+    ID08---IDRX;
+    ID10---IDTX;
+    IDGNDR---IDGNDS;
+    DC--Maybe from RPi?---ID5V;
 ```
+
+## Development Notes
+
+- First I'm going to try the setup on a Raspberry Pi 3B+. If it works, I'll try it on my 24/7 running Raspberry Pi 4B 4GB.
+- Why Raspberry Pi OS and not a more lightweight distro? Because currently my RPi is running [Tailscale](https://tailscale.com/), [Pi-hole](https://pi-hole.net/), and [PiVPN](https://www.pivpn.io/). They run without a problem on Raspberry Pi without desktop, so I'll be using that OS.
+  - Flash SD card with [Raspberry Pi Imager](https://www.raspberrypi.com/software/). While in settings, activate SSH and set up the WiFi credentials.
+  - Connect to the Raspberry Pi via SSH. You should have set up the username and password using the Raspberry Pi Imager.
+  - Compulsory `sudo apt-get update && sudo apt-get upgrade -y` after first boot.
+  - Activate VNC through SSH with `sudo raspi-config` > `Interfacing Options` > `VNC` > `Yes`.
+  - Download [VNC Viewer](https://www.realvnc.com/es/connect/download/viewer/) and connect to the Raspberry Pi.
+  - Download Discord using Pi-Apps:
+    - `wget -qO- https://raw.githubusercontent.com/Botspot/pi-apps/master/install | bash`
+    - Pi-Apps on your desktop > Search > "Discord" > Install
+    - App will now be in the menu > Internet > `WebCord`
+    - > Technically this Discord launcher violates TOS. A different solution is to use the web version of Discord (https://discord.com/login).
+    - Make sure to go to `File` > `Settings` and turn on mic permissions on WebCord. 
+- Turns out the RPi 3B+ doesn't have mic input through the jack :( Lets hope the RPi 4 has a jack with input capabilities. ~~I'm going to simulate an input using [Pulsemeeter](https://pypi.org/project/pulsemeeter/).~~ Nope, doesn't work, some extra packages have to be installed and I can't be bothered. I'll just simulate a dummy input using `sudo modprobe snd-dummy` (Will disappear after reboot).
+- Now let's make WebCord start on boot
+  - Create a cronjob with `crontab -e`
+    - If it's the first time, it will ask you to select an editor. I chose nano (1).
+  - Add line `@reboot DISPLAY=:0 webcord` to the end of the file. 
+    - You might have to change DISPLAY=:0 to DISPLAY=:1 if it doesn't work. You can check the display number by writing `echo $DISPLAY` in the terminal.
+  - Save file `ctrl + x` > `y` > `enter`
+  - Reboot and make sure it works: `sudo reboot`
 
 ## Useful SIM900 Info
 > Source: https://simcom.ee/documents/SIM900/SIM900_AT%20Command%20Manual_V1.11.pdf
