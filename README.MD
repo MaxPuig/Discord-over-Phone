@@ -1,4 +1,6 @@
 # Discord over Phone
+Abstract: Call a phone number to speak in a Discord voice call. It will use a SIM900 module (to receive calls) which will be connected to a Raspberry Pi. The Raspberry Pi will then connect to a Discord voice channel and play the audio from the SIM900 module. The Raspberry Pi will also record the audio from the Discord voice channel and send it to the SIM900 module.
+
 ## Why?
 Sometimes I lose internet connection on my phone, however calls still work. This is a problem because I get disconnected from Discord calls on my phone. The solution? Call a phone number which will relay the audio and mic both ways.
 
