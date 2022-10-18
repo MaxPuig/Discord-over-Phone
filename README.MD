@@ -39,7 +39,7 @@ flowchart TB
 ```mermaid
 flowchart TB
     subgraph Connections
-        subgraph Raspberry Pi
+        subgraph Raspberry Pi 4B
             ID08[Pin 08 - TX];
             ID10[Pin 10 - RX];
             IDGNDR[Pin 14 - GND];
@@ -82,6 +82,23 @@ flowchart TB
     - You might have to change DISPLAY=:0 to DISPLAY=:1 if it doesn't work. You can check the display number by writing `echo $DISPLAY` in the terminal.
   - Save file `ctrl + x` > `y` > `enter`
   - Reboot and make sure it works: `sudo reboot`
+- Let's connect the cables. This time we will be using the RPi as the VCC 5V Power source. Same diagram as before, but using the 5V PIN to power the module. The RPi 3B+ has a different pinout: GPIO-14-TX to SIM900-RX and GPIO-15-RX to SIM900-TX.
+- Enable serial communication:
+  - Start raspi-config: `sudo raspi—config`.
+  - Select option: `Interfacing Options`.
+  - Select option  - `Serial Port`
+  - At the prompt: Would you like a login sheII to be access±ble over serial?
+  answer `No`
+  - At the prompt: Would you like the serial port hardware to be enabled? answer `Yes`
+  - Exit raspi-config and reboot the Pi for changes to take effect
+  answer
+- Use minicom to communicate with the module
+  - Install `minicom` with `sudo apt-get install minicom`
+  - Use minicom with `sudo minicom -D /dev/ttyS0 -b 115200`. (Still not clear if ttyS0 or ttyAMA0)
+  - Write a command and press `ctrl+m`. If you get a response, it means that the module is working. If you write and it doesnt display text, still press `ctrl+m` and it should display the response.
+  - To exit minicom, press `ctrl+a` and then `q`.
+- Let's write a program to communicate with the module. This file here: ~~[communicate.py](communicate.py)~~ (Still not uploaded)
+- Currently there is no communication between both devices. Neither with minicom or with the file. Maybe wrong connections?
 
 ## Useful SIM900 Info
 > Source: https://simcom.ee/documents/SIM900/SIM900_AT%20Command%20Manual_V1.11.pdf
